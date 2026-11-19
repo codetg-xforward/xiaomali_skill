@@ -1,32 +1,47 @@
-# 小码力（微信小程序开发）安装说明
+# 小码力微信小程序开发
 
-在 codetg.com（AICP 开发平台）上生成微信小程序的技能。
+通过 AICP 平台创建、查询和修改微信小程序，支持微信主体绑定和体验码交付。
 
-## 安装步骤
+## 安装
 
-1. 将整个 `xiaomali` 文件夹复制到技能目录：
-   - Windows: `C:\Users\<你的用户名>\.workbuddy\skills\xiaomali\`
-   - macOS / Linux: `~/.workbuddy/skills/xiaomali/`
-   - 最终结构应为 `.../.workbuddy/skills/xiaomali/SKILL.md` 与 `.../xiaomali/scripts/aicp_credentials.py`
-2. 重启 WorkBuddy 会话（或新开会话），技能即自动加载
-3. 首次使用时无需手动配置令牌：技能会自动检测本地凭据 `~/.workbuddy/credentials/aicp.json`
-   - 已安装并配置过「AICP 开发平台」（aicp-dev-platform）技能的用户：凭据共用，**无需任何操作**
-   - 无凭据时，技能会在对话里引导完成注册 / 登录并自动换取 API Key（`pt-` 开头），全程无需手动填文件
+将本仓库克隆、解压或复制为名为 `xiaomali` 的目录，放到客户端支持的技能目录。目录内应直接包含 `SKILL.md`、`scripts/` 和 `references/`。
 
-> Web 网站/落地页开发请安装配套技能「AICP 开发平台」（aicp-dev-platform）。两技能共用同一账号与凭据文件。
+| 客户端 | 用户级位置 | 项目级位置 |
+| --- | --- | --- |
+| Codex、Gemini CLI | `~/.agents/skills/xiaomali/` | `<项目根目录>/.agents/skills/xiaomali/` |
+| Claude Code | `~/.claude/skills/xiaomali/` | `<项目根目录>/.claude/skills/xiaomali/` |
+| WorkBuddy | `~/.workbuddy/skills/xiaomali/` | 依客户端的导入方式 |
 
-## 使用方式
+`~` 表示当前用户的主目录，Windows PowerShell 中可用 `$HOME`。其他客户端可通过自身的 Agent Skills 导入功能加载同一目录。安装后新开会话，确认技能列表中出现 `xiaomali`。
 
-安装后直接对话即可触发，例如：
-- 「帮我生成一个奶茶店点单小程序」
-- 「做一个会员打卡的微信小程序」
-- 创建完成后**自动衔接**：技能会调用 mp_auth/create.jss 发起微信主体注册，把注册授权二维码交付给你扫码（个人注册需身份证+人脸核验），注册完成后自动调 proxy_ci_service.jss 取体验码并以二维码交付
-- 「把这个小程序发布 / 绑定主体」→ 技能自动完成微信主体绑定 → 注册二维码 → 取码交付，只需提供微信号（个人）或企业名称/企业代码/代码类型（企业）；首次会引导设置一次登录密码
+例如，用 Windows PowerShell 为 Codex 或 Gemini CLI 安装到用户目录：
 
-## 安全说明
+```powershell
+git clone https://github.com/codetg-xforward/xiaomali_skill.git "$HOME/.agents/skills/xiaomali"
+```
 
-- API Key 保存在本地凭据文件 `~/.workbuddy/credentials/aicp.json`（自动收紧文件权限），**不再写入 SKILL.md**
-- 登录密码保存在**系统密钥链**（Windows DPAPI / macOS Keychain / Linux secretstorage），明文永不落盘
-- 发布绑定用的会话 JWT 由脚本自动登录获取，仅当次使用后丢弃，不落盘
-- **不要**把已含凭据的文件分发或提交到 git 仓库
-- 令牌失效（接口返回 401）时，对话里说一声即可，技能会引导重新获取
+## 运行条件
+
+- Python 3.10 或更新版本。当前执行环境需允许访问 `https://codetg.com`。下载平台托管的体验码图片时还需访问响应中给出的图片域名。
+- 生成授权二维码或转换体验码图片需要 `qrcode` 和 `Pillow`，可用 `python -m pip install "qrcode[pil]"` 安装。
+- 本地密码使用 Windows DPAPI、macOS Keychain 或 Linux Secret Service。Linux 保存登录密码还需安装 `SecretStorage` 并有可访问的 Secret Service 会话。
+- 托管客户端需要在实际执行技能的环境中安装脚本依赖、配置网络和密钥，并支持交付生成的图片文件。
+
+## 配置凭据
+
+| 使用场景 | 配置 |
+| --- | --- |
+| 新安装 | 本地默认使用 `~/.xiaomali/credentials/`。没有 API Key 时，技能会引导登录或注册。 |
+| 已有 WorkBuddy 或配套 AICP 开发平台凭据 | 如果新目录尚未创建，自动沿用 `~/.workbuddy/credentials/`。要持续使用共享目录，可将 `XIAOMALI_CREDENTIALS_DIR` 设为该目录的绝对路径。 |
+| 托管执行 | 在环境的密钥配置中设置 `AICP_PT_KEY`。主体绑定、取体验码或添加体验者时，也设置 `AICP_MOBILE` 和 `AICP_LOGIN_PASSWORD`。 |
+
+`AICP_PT_KEY` 优先于本地文件。未配置它时，本地路径按显式配置、新目录、已有 WorkBuddy 凭据的顺序选取。登录密码可由凭据脚本的 `set-password` 子命令在终端隐藏输入。API Key、密码和 JWT 都应留在各自的凭据存储或运行环境中。
+
+## 使用
+
+- 「生成一个奶茶店点单微信小程序」
+- 「把刚才那个小程序的首页改成蓝色」
+- 「绑定这个小程序的个人主体，发我授权二维码」
+- 「给这个已绑定的小程序生成体验码」
+
+个人主体授权需要本人在手机微信中完成扫码和身份核验。技能会在取得 AppID 后继续取码。完整流程见 [SKILL.md](SKILL.md)。
