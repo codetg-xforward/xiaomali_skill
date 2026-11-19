@@ -1,0 +1,15 @@
+{
+  "slug": "xiaomali",
+  "name": "小码力小程序开发",
+  "version": "1.0.4",
+  "installedAt": 1794557852555,
+  "source": "skillhub",
+  "namespace": "org-d16q4fcx",
+  "canonicalName": "@org-d16q4fcx/xiaomali",
+  "iconSource": "https://skillhub-1388575217.cos.accelerate.myqcloud.com/skill-icons/uploads/717606/5aa0a65085aa4b089c12d94cd968a698.jpg",
+  "labels": {
+    "requires_api_key": "true"
+  },
+  "iconLocalPath": "C:\\Users\\Administrator\\.workbuddy\\skills\\xiaomali__skillhub\\_icon.jpg",
+  "iconDownloadedFrom": "https://skillhub-1388575217.cos.accelerate.myqcloud.com/skill-icons/uploads/717606/5aa0a65085aa4b089c12d94cd968a698.jpg"
+}
